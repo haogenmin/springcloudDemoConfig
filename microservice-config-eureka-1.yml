@@ -1,5 +1,6 @@
 server:
   port: 6001 # 服务端口
+  
 
 eureka:
   instance:
@@ -11,3 +12,19 @@ eureka:
       defaultZone: http://eureka6002.com:6002/eureka/
   server:
     enable-self-preservation: false # 禁用自我保护机制
+    
+    
+    
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+    #  暴露触发消息总线的地址
+management:
+  endpoints:
+    web:
+      exposure:
+        include: bus-refresh

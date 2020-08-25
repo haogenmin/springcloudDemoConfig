@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: microservice-consumer #这个很重要，这在以后的服务与服务之间相互调用一般都是根据这个name
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 
 eureka:
   client:
@@ -19,3 +24,10 @@ eureka:
 microservice-provider:
   ribbon:
     NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+    
+#  暴露触发消息总线的地址
+management:
+  endpoints:
+    web:
+      exposure:
+        include: bus-refresh

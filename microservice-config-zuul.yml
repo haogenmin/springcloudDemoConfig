@@ -5,6 +5,11 @@ server:
 spring:
   application:
     name: microservice-zuul
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 
 #-------------------------------------------------------------------------------------------------
   redis:
@@ -75,11 +80,12 @@ zuul:
       stripPrefix: false # 代理转发时去掉前缀，false:代理转发时不去掉前缀 例如:为true时请求 /product/get/1，代理转发到/get/1
 
 #-------------------------------------------------------------------------------------------------
+#  暴露触发消息总线的地址
 management:
   endpoints:
     web:
       exposure:
-        include: hystrix.stream
+        include: [bus-refresh,hystrix.stream]
 
 #-------------------------------------------------------------------------------------------------
 # Hystrix 超时时间设置
