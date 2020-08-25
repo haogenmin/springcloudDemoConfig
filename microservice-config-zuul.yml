@@ -1,0 +1,99 @@
+server:
+  port: 7001
+
+#-------------------------------------------------------------------------------------------------
+spring:
+  application:
+    name: microservice-zuul
+
+#-------------------------------------------------------------------------------------------------
+  redis:
+    timeout: 5000        # 连接超时时间
+    host: 127.0.0.1  # Redis服务器地址
+    port: 6379            # Redis服务器端口
+    database: 0           # 选择哪个库，默认0库
+    lettuce:
+      pool:
+        max-active: 8  # 最大连接数，默认 8
+        max-wait: 5000   # 最大连接阻塞等待时间，单位毫秒，默认 -1
+        max-idle: 8     # 最大空闲连接，默认 8
+        min-idle: 5       # 最小空闲连接，默认 0
+
+#-------------------------------------------------------------------------------------------------
+eureka:
+  client:
+    registerWithEureka: true # 服务注册开关
+    fetchRegistry: true # 服务发现开关
+    serviceUrl: # 客户端(服务提供者)注册到哪一个Eureka Server服务注册中心，多个用逗号分隔
+      defaultZone: http://eureka6001.com:6001/eureka,http://eureka6002.com:6002/eureka
+  instance:
+    instanceId: ${spring.application.name}:${server.port} # 指定实例ID,就不会显示主机名了
+    preferIpAddress: true     #访问路径可以显示IP地址
+
+zuul:
+  retryable: true # 开启 Zuul 网关重试
+
+#-------------------------------------------------------------------------------------------------
+  ratelimit: # 服务限流
+    enabled: true  # 开启限流保护
+    repository: redis # 限流数据存储方式
+    behind-proxy: true
+    response-headers: standard
+    policy-list:  # policy-list 自定义配置，局部生效
+      microservice-product: # 指定需要被限流的服务名称
+        - limit: 2
+          refresh-interval: 60  # 60s 内请求超过 5 次，服务端就抛出异常，60s 后可以恢复正常请求
+          type:
+            - origin
+            - url
+            - user
+
+    default-policy-list: # default-policy-list 默认配置，全局生效
+    - limit: 3
+      refresh-interval: 60    # 60s 内请求超过 3 次，服务端就抛出异常，60s 后可以恢复正常请求
+      type:
+        - origin
+        - url
+        - user
+
+#-------------------------------------------------------------------------------------------------
+  SendErrorFilter: #禁止默认错误处理过滤器
+    error:
+      disable: true
+
+#-------------------------------------------------------------------------------------------------
+  #ignored-services: order-service # 服务名称排除，多个服务逗号分隔，'*' 排除所有
+  #ignored-patterns: /**/order/**  # URL 地址排除，排除所有包含 /order/ 的路径
+  routes:
+    provider-product:    # 路由名称，名称任意，路由名称唯一
+      path: /provider/** # 访问路径
+      serviceId: microservice-product # 指定服务ID，会自动从Eureka中找到此服务的ip和端口
+      stripPrefix: false # 代理转发时去掉前缀，false:代理转发时不去掉前缀 例如:为true时请求 /product/get/1，代理转发到/get/1
+
+#-------------------------------------------------------------------------------------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
+
+#-------------------------------------------------------------------------------------------------
+# Hystrix 超时时间设置
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000  # 线程池隔离，默认超时时间 1000ms
+
+#-------------------------------------------------------------------------------------------------
+# Ribbon 超时时间设置：建议设置小于 Hystrix
+ribbon:
+  ConnectTimeout: 1000                    # 请求连接的超时时间: 默认超时时间 1000ms
+  ReadTimeout: 1000                       # 请求处理的超时时间: 默认超时时间 1000ms
+  # 重试次数
+  MaxAutoRetries: 1                       # MaxAutoRetries 表示访问服务集群下原节点（同路径访问）
+  MaxAutoRetriesNextServer: 1             # MaxAutoRetriesNextServer表示访问服务集群下其余节点（换台服务器）
+  # Ribbon 开启重试
+  OkToRetryOnAllOperations: true
