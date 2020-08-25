@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: microservice-product #这个很重要，这在以后的服务与服务之间相互调用一般都是根据这个name
+    name: microservice-provider #这个很重要，这在以后的服务与服务之间相互调用一般都是根据这个name
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource            # 当前数据源操作类型
     driver-class-name: com.mysql.cj.jdbc.Driver             # mysql驱动包
@@ -27,7 +27,7 @@ eureka:
     serviceUrl: # 注册到哪一个Eureka Server服务注册中心，多个中间用逗号分隔
       defaultZone: http://eureka6001.com:6001/eureka,http://eureka6002.com:6002/eureka
   instance:
-    instanceId: ${spring.application.name}:${server.port} # 等价于microservice-product:8001
+    instanceId: ${spring.application.name}:${server.port} # 等价于microservice-provider:8001
     prefer-ip-address: true #访问路径就会显示成IP地址
 
 management:

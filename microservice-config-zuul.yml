@@ -40,7 +40,7 @@ zuul:
     behind-proxy: true
     response-headers: standard
     policy-list:  # policy-list 自定义配置，局部生效
-      microservice-product: # 指定需要被限流的服务名称
+      microservice-provider: # 指定需要被限流的服务名称
         - limit: 2
           refresh-interval: 60  # 60s 内请求超过 5 次，服务端就抛出异常，60s 后可以恢复正常请求
           type:
@@ -65,9 +65,13 @@ zuul:
   #ignored-services: order-service # 服务名称排除，多个服务逗号分隔，'*' 排除所有
   #ignored-patterns: /**/order/**  # URL 地址排除，排除所有包含 /order/ 的路径
   routes:
+    consumer-product:    # 路由名称，名称任意，路由名称唯一
+      path: /consumer/** # 访问路径
+      serviceId: microservice-consumer # 指定服务ID，会自动从Eureka中找到此服务的ip和端口
+      stripPrefix: false # 代理转发时去掉前缀，false:代理转发时不去掉前缀 例如:为true时请求 /product/get/1，代理转发到/get/1
     provider-product:    # 路由名称，名称任意，路由名称唯一
       path: /provider/** # 访问路径
-      serviceId: microservice-product # 指定服务ID，会自动从Eureka中找到此服务的ip和端口
+      serviceId: microservice-provider # 指定服务ID，会自动从Eureka中找到此服务的ip和端口
       stripPrefix: false # 代理转发时去掉前缀，false:代理转发时不去掉前缀 例如:为true时请求 /product/get/1，代理转发到/get/1
 
 #-------------------------------------------------------------------------------------------------
